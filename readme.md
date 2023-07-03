@@ -6,9 +6,29 @@ A starter project template for creating new projects using nodejs, express, conn
 
 Edit the package.json with your new project name/info.
 
+semver override in package.json is because there's new vulnerbilities that aren't patched yet in many js libraries that use semver. You can remove that in the future hopefully.
+
+## MongoDB setup
+
 Be sure to change the DB user password and session secret in the .env file. Install mongo DB and create the DB user and DB name you intend to use for this app.
 
-semver override in package.json is because there's new vulnerbilities that aren't patched yet in many js libraries that use semver. You can remove that in the future hopefully.
+Install mongodb (mac-os uses brew install command).
+Open terminal and type "mongosh" (mongoshell).
+
+```
+use mydb
+db.createUser({user: "nodejs", pwd: "ComeUpWithYourOwnPassword", roles: [ "dbOwner" ] })
+```
+
+These commands will create a database named mydb, assign a user named nodejs with password ComeUpWithYourOwnPassword and grant him full access rights on that db.
+
+Make sure you are admin beforehand, so that you're able to create dbs and users.
+
+[Note] In order to get the newly created database to show in the list returned by command show dbs, you need to insert at least one document into a collection of the newly created database. For example:
+`db.mycollection.insert({firstName: "Adam"});
+
+
+## Setup Nodejs and packages
 
 If you are setting up your nodejs development anew, install VS code, install nvm (node version manager) then:
 
