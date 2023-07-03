@@ -79,7 +79,7 @@ router.post('/register', (req, res, next) => {
 router.get('/protected-route', (req, res, next) => {
   // This is how you check if a user is authenticated and protect a route.  You could turn this into a custom middleware to make it less redundant
   if (req.isAuthenticated()) {
-    res.send('<h1>You are authenticated</h1><p><a href="/logout">Logout and reload</a></p>');
+    res.send('<h1>You are authenticated</h1><p><form action="/logout" method="POST"><button style="width: 60px; height: 30px; font-size: 12px;" type="submit">Logout</button></form></p>');
   } else {
     res.send(
       '<h1>You are not authenticated</h1><p><a href="/login">Login</a> or <a href="/register">Register</a></p>'
@@ -88,7 +88,7 @@ router.get('/protected-route', (req, res, next) => {
 });
 
 // Visiting this route logs the user out
-router.get('/logout', (req, res, next) => {
+router.post('/logout', (req, res, next) => {
   req.logout(function (err) {
     if (err) {
       return next(err);
