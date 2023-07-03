@@ -1,13 +1,16 @@
 const express = require('express');
 const createError = require('http-errors');
-const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
-const crypto = require('crypto');
 const LocalStrategy = require('passport-local').Strategy;
+const crypto = require('crypto');
 const MongoStore = require('connect-mongo');
 const path = require('path');
 const morgan = require('morgan');
+const connectDB = require('./config/db');
+const User = require('./models/User');
+
+connectDB();
 
 //Add future route handlers here as your app functionality grows
 const indexRouter = require('./routes/index');
@@ -25,25 +28,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-/**
- * Connect to MongoDB Server using the connection string in the `.env` file.  To implement this, place the following string into the `.env` file
- * DB_STRING=mongodb://<user>:<password>@localhost:27017/database_name
- */
-const conn = process.env.DB_STRING;
-
-const connection = mongoose.createConnection(conn, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-connection.on('connected', () => {
-  console.log('connected to the database.');
-});
-
-//Add future database Schema's here, as your app functionality grows
-const userSchema = require('./models/userSchema');
-const User = connection.model('User', userSchema);
 
 /**
  * This function is called when the `passport.authenticate()` method is called.
@@ -87,8 +71,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-      // mongoUrl: process.env.DB_STRING,
-      client: connection.getClient(),
+      mongoUrl: process.env.MONGODB_URI,
       stringify: false,
     }),
     cookie: {
@@ -128,18 +111,7 @@ app.listen(3000);
 /**
  * -------------- HELPER FUNCTIONS ----------------
  */
-
 function validPassword(password, hash, salt) {
   var hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
   return hash === hashVerify;
-}
-
-function genPassword(password) {
-  var salt = crypto.randomBytes(32).toString('hex');
-  var genHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-
-  return {
-    salt: salt,
-    hash: genHash,
-  };
 }

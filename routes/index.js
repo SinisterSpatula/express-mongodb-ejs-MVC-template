@@ -1,6 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const crypto = require('crypto');
+const User = require('../models/User');
+
+/**
+ * -------------- Main Index Route: https://localhost:3000/ ----------------
+ */
 
 router.get('/', (req, res, next) => {
   if (req.isAuthenticated()) {
@@ -100,5 +106,19 @@ router.get('/login-success', (req, res, next) => {
 router.get('/login-failure', (req, res, next) => {
   res.send('You entered the wrong password.');
 });
+
+/**
+ * -------------- HELPER FUNCTIONS ----------------
+ */
+
+function genPassword(password) {
+  var salt = crypto.randomBytes(32).toString('hex');
+  var genHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+
+  return {
+    salt: salt,
+    hash: genHash,
+  };
+}
 
 module.exports = router;
